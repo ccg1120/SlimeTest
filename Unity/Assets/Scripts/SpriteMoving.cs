@@ -17,12 +17,26 @@ public class SpriteMoving : MonoBehaviour
     private float m_XMaxAngle = 15f;
     private float m_YMaxAngle = 15f;
 
+    private float m_XCurrentAngle = 0f;
+    private float m_YCurrentAngle = 0f;
+
     // Start is called before the first frame update
+    private void Awake()
+    {
+#if UNITY_EDITOR
+
+#elif UNITY_ANDROID
+        GyroEnable(true);
+#endif
+    }
     void Start()
     {
         GetComponents();
     }
-
+    private void GyroEnable(bool ok)
+    {
+        Input.gyro.enabled = ok;
+    }
     private void GetComponents()
     {
         m_Image = this.gameObject.GetComponent<Image>();
@@ -32,9 +46,17 @@ public class SpriteMoving : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+#if UNITY_EDITOR
         CheckInside();
+#elif UNITY_ANDROID
+        GyroUpdate();
+#endif
+
+        transform.rotation = Quaternion.Euler(m_TargetAngle);
     }
 
+
+    #region EditorInput
     private void CheckInside()
     {
         Vector2 diff = (Vector2)transform.position - (Vector2)Input.mousePosition;
@@ -51,7 +73,7 @@ public class SpriteMoving : MonoBehaviour
                 0
             );
 
-            transform.rotation = Quaternion.Euler(m_TargetAngle);
+            
         }
     }
 
@@ -66,4 +88,36 @@ public class SpriteMoving : MonoBehaviour
         m_DeltaHalfSize_Y = (m_RT.sizeDelta.y / 2f);
         return (Mathf.Abs(y) <= m_DeltaHalfSize_Y);
     }
+    #endregion
+
+    #region Gyro
+    private void GyroUpdate()
+    {
+        GetRotation();
+    }
+
+    private void GetRotation()
+    {
+        Rotation_X();
+        Rotation_Y();
+        m_TargetAngle = new Vector3(
+            m_XCurrentAngle,
+            m_YCurrentAngle,
+            0
+            );
+    }
+    private void Rotation_X()
+    {
+        m_XCurrentAngle += Input.gyro.rotationRateUnbiased.x;
+
+        m_XCurrentAngle = Mathf.Clamp(m_XCurrentAngle, -m_XMaxAngle, m_XMaxAngle);
+    }
+
+    private void Rotation_Y()
+    {
+        m_YCurrentAngle += Input.gyro.rotationRateUnbiased.y;
+
+        m_YCurrentAngle = Mathf.Clamp(m_YCurrentAngle, -m_YMaxAngle, m_YMaxAngle);
+    }
+    #endregion
 }
