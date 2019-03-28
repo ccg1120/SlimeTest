@@ -14,8 +14,8 @@ public class SpriteMoving : MonoBehaviour
     private float m_DeltaHalfSize_X;
     private float m_DeltaHalfSize_Y;
 
-    private float m_XMaxAngle = 15f;
-    private float m_YMaxAngle = 15f;
+    private float m_XMaxAngle = 25f;
+    private float m_YMaxAngle = 25f;
 
     private float m_XCurrentAngle = 0f;
     private float m_YCurrentAngle = 0f;
